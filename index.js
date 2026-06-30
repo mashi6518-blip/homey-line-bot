@@ -48,13 +48,11 @@ async function handleEvent(event) {
 
   const replyText = completion.choices[0].message.content || "すみません、うまく返答できませんでした。";
 
+try {
   return client.replyMessage(event.replyToken, {
     type: "text",
     text: replyText,
   });
-}
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`HOMEY LINE Bot running on port ${port}`);
-});
+} catch (err) {
+  console.error("LINE reply error:", err.response?.data || err.message);
+} 
