@@ -11,7 +11,7 @@ const config = {
 
 const client = new line.Client(config);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+const ceoAI = require("./ai/ceo");
 app.get("/", (req, res) => {
   res.send("HOMEY LINE Bot is running.");
 });
@@ -32,21 +32,7 @@ async function handleEvent(event) {
 
   const userText = event.message.text;
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "あなたはHOMEYのLINE Botです。短く丁寧に日本語で返答してください。"
-      },
-      {
-        role: "user",
-        content: userText
-      }
-    ],
-  });
-
-  const replyText = completion.choices[0].message.content || "すみません、うまく返答できませんでした。";
+ const replyText = await ceoAI(userText, openai);
 
 try {
   return client.replyMessage(event.replyToken, {
@@ -56,3 +42,9 @@ try {
 } catch (err) {
   console.error("LINE reply error:", err.response?.data || err.message);
 } 
+} 
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`HOMEY LINE Bot running on port ${PORT}`);
+});
